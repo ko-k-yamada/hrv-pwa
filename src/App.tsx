@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const [brightness, setBrightness] = useState(0)
 
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -58,6 +61,10 @@ function App() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream
+
+        videoRef.current.onloadedmetadata = () => {
+          startBrightnessMonitoring()
+        }
       }
     } catch (error) {
       console.error(error)
@@ -68,6 +75,56 @@ function App() {
         alert('カメラの起動に失敗しました')
       }
     }
+  }
+
+  const startBrightnessMonitoring = () => {
+    setInterval(() => {
+      const video = videoRef.current
+      const canvas = canvasRef.current
+
+      if (!video || !canvas) return
+
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) return
+
+      canvas.width = 100
+      canvas.height = 100
+
+      ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      )
+
+      const imageData = ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      )
+
+      const data = imageData.data
+
+      let sum = 0
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i]
+        const g = data[i + 1]
+        const b = data[i + 2]
+
+        sum += (r + g + b) / 3
+      }
+
+      const avg =
+        sum / (data.length / 4)
+
+      setBrightness(
+        Math.round(avg)
+      )
+    }, 200)
   }
 
   if (!authenticated) {
@@ -118,6 +175,15 @@ function App() {
         autoPlay
         playsInline
         width="300"
+      />
+
+      <p>
+        平均輝度: {brightness}
+      </p>
+
+      <canvas
+        ref={canvasRef}
+        style={{ display: 'none' }}
       />
     </div>
   )
