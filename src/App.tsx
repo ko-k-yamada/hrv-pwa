@@ -10,6 +10,7 @@ function App() {
   const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
   const [filteredHistory, setFilteredHistory] = useState<number[]>([])
   const [bpm, setBpm] = useState(0)
+  const [peaks, setPeaks] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -32,7 +33,7 @@ function App() {
   }, [brightnessHistory])
 
   useEffect(() => {
-    drawGraph(filteredHistory)
+    drawGraph(filteredHistory, peaks)
 
     calculateBpm(filteredHistory)
   }, [filteredHistory])
@@ -137,20 +138,20 @@ const calculateBpm = (data: number[]) => {
   const min = Math.min(...data)
 
   const threshold = min + (max - min) *0.6
-  const peaks: number[] = []
+  const detectedPeaks: number[] = []
 
   for (let i = 1; i < data.length - 1; i++) {
     if (data[i] > threshold && data[i] > data[i - 1] && data[i] > data[i + 1]) {
-      peaks.push(i)
+      detectedPeaks.push(i)
     }
   }
 
-  if (peaks.length < 2) return
+  if (detectedPeaks.length < 2) return
 
   const intervals: number[] = []
 
-  for (let i = 1; i < peaks.length; i++) {
-    intervals.push(peaks[i] - peaks[i - 1])
+  for (let i = 1; i < detectedPeaks.length; i++) {
+    intervals.push(detectedPeaks[i] - detectedPeaks[i - 1])
   }
 
   const avgInterval =
@@ -159,10 +160,11 @@ const calculateBpm = (data: number[]) => {
   const secondsPerBeat = avgInterval * 0.2
   const bpmValue = 60 / secondsPerBeat
 
+  setPeaks(detectedPeaks)
   setBpm(Math.round(bpmValue))
 }
 
-const drawGraph = (data: number[]) => {
+const drawGraph = (data: number[], peaks: number[]) => {
   const canvas = graphRef.current
 
   if (!canvas) return
@@ -202,6 +204,27 @@ const drawGraph = (data: number[]) => {
   })
 
   ctx.stroke()
+
+  ctx.fillStyle = 'red'
+
+  peaks.forEach((peakIndex) => {
+    const min = Math.min(...data)
+    const max = Math.max(...data)
+
+    const range =
+      Math.max(max - min, 1)
+
+    const x =
+      (peakIndex / (data.length - 1)) * width
+
+    const y =
+      height -
+      ((data[peakIndex] - min) / range) * height
+
+    ctx.beginPath()
+    ctx.arc(x, y, 4, 0, Math.PI * 2)
+    ctx.fill()
+  })
 }
 
 
