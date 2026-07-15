@@ -5,6 +5,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [brightness, setBrightness] = useState(0)
+  const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -120,10 +121,18 @@ function App() {
 
       const avg =
         sum / (data.length / 4)
+      
+      const brightnessValue = Math.round(avg)
 
       setBrightness(
-        Math.round(avg)
+        brightnessValue
       )
+
+      setBrightnessHistory((prev) => [
+        ...prev.slice(-299),
+        brightnessValue,
+      ])
+
     }, 200)
   }
 
@@ -180,7 +189,9 @@ function App() {
       <p>
         平均輝度: {brightness}
       </p>
-
+      <p>
+        データ数： {brightnessHistory.length}
+      </p>
       <canvas
         ref={canvasRef}
         style={{ display: 'none' }}
