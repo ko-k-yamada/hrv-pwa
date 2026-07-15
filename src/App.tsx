@@ -6,6 +6,7 @@ function App() {
   const graphRef = useRef<HTMLCanvasElement>(null)
 
   const [brightness, setBrightness] = useState(0)
+  const [torchOn, setTorchOn] = useState(false)
   const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
@@ -82,6 +83,29 @@ function App() {
       }
     }
   }
+
+const toggleTorch = async () => {
+  const video = videoRef.current
+
+  if (!video) return
+
+  const stream = video.srcObject as MediaStream
+
+  if (!stream) return
+
+  const track = stream.getVideoTracks()[0]
+
+  try {
+    await track.applyConstraints({
+      adavanced: [{ torch: !torchOn,} as any,],
+  })
+  setTorchOn(!torchOn)
+} catch (error) {
+  alert('この端末ではトーチ未対応です')
+  console.error(error)
+}
+}
+
 const drawGraph = (data: number[]) => {
   const canvas = graphRef.current
 
@@ -160,10 +184,8 @@ const drawGraph = (data: number[]) => {
 
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i]
-        const g = data[i + 1]
-        const b = data[i + 2]
-
-        sum += (r + g + b) / 3
+     
+        sum += r
       }
 
       const avg =
@@ -221,6 +243,9 @@ const drawGraph = (data: number[]) => {
 
       <button onClick={startCamera}>
         カメラ起動
+      </button>
+      <button onClick={toggleTorch}>
+        {torchOn ? 'フラッシュOFF' : 'フラッシュON'}
       </button>
 
       <br />
