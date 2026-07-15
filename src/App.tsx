@@ -28,7 +28,7 @@ function App() {
 
   useEffect(() => {
     const filtered =
-      movingAverage(brightnessHistory, 5)
+      movingAverage(brightnessHistory, 3)
     setFilteredHistory(filtered)
   }, [brightnessHistory])
 
