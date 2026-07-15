@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const graphRef = useRef<HTMLCanvasElement>(null)
 
   const [brightness, setBrightness] = useState(0)
   const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
@@ -20,6 +21,10 @@ function App() {
       setAuthenticated(true)
     }
   }, [])
+
+  useEffect(() => {
+    drawGraph(brightnessHistory)
+  }, [brightnessHistory])
 
   const sha256 = async (text: string) => {
     const data = new TextEncoder().encode(text)
@@ -77,6 +82,48 @@ function App() {
       }
     }
   }
+const drawGraph = (data: number[]) => {
+  const canvas = graphRef.current
+
+  if (!canvas) return
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) return
+
+  const width = canvas.width
+  const height = canvas.height
+
+  ctx.clearRect(0, 0, width, height)
+
+  if (data.length < 2) return
+
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+
+  const range =
+    Math.max(max - min, 1)
+
+  ctx.beginPath()
+
+  data.forEach((value, index) => {
+    const x =
+      (index / (data.length - 1)) * width
+
+    const y =
+      height -
+      ((value - min) / range) * height
+
+    if (index === 0) {
+      ctx.moveTo(x, y)
+    } else {
+      ctx.lineTo(x, y)
+    }
+  })
+
+  ctx.stroke()
+}
+
 
   const startBrightnessMonitoring = () => {
     setInterval(() => {
@@ -192,6 +239,14 @@ function App() {
       <p>
         データ数： {brightnessHistory.length}
       </p>
+      <canvas
+        ref={graphRef}
+        width={600}
+        height={200}
+        style={{
+          border: '1px solid black',
+        }}
+      />  
       <canvas
         ref={canvasRef}
         style={{ display: 'none' }}
