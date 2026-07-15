@@ -97,7 +97,7 @@ const toggleTorch = async () => {
 
   try {
     await track.applyConstraints({
-      adavanced: [{ torch: !torchOn,} as any,],
+      advanced: [{ torch: !torchOn,} as any,],
   })
   setTorchOn(!torchOn)
 } catch (error) {
