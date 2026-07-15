@@ -8,6 +8,7 @@ function App() {
   const [brightness, setBrightness] = useState(0)
   const [torchOn, setTorchOn] = useState(false)
   const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
+  const [filteredHistory, setFilteredHistory] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -24,8 +25,14 @@ function App() {
   }, [])
 
   useEffect(() => {
-    drawGraph(brightnessHistory)
+    const filtered =
+      movingAverage(brightnessHistory, 5)
+    setFilteredHistory(filtered)
   }, [brightnessHistory])
+
+  useEffect(() => {
+    drawGraph(filteredHistory)
+  }, [filteredHistory])
 
   const sha256 = async (text: string) => {
     const data = new TextEncoder().encode(text)
@@ -104,6 +111,20 @@ const toggleTorch = async () => {
   alert('この端末ではトーチ未対応です')
   console.error(error)
 }
+}
+
+const movingAverage = (
+data: number[], windowSize: number) => {
+  const result: number[] = []
+
+  for (let i = 0; i < data.length; i++) {
+    const start = Math.max(0, i - windowSize + 1)
+    const subset = data.slice(start, i + 1)
+    const avg = subset.reduce((sum, value) => sum + value, 0) / subset.length
+    result.push(avg)
+  }
+
+  return result
 }
 
 const drawGraph = (data: number[]) => {
