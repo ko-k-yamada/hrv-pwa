@@ -9,6 +9,7 @@ function App() {
   const [torchOn, setTorchOn] = useState(false)
   const [brightnessHistory, setBrightnessHistory] = useState<number[]>([])
   const [filteredHistory, setFilteredHistory] = useState<number[]>([])
+  const [bpm, setBpm] = useState(0)
 
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -32,6 +33,8 @@ function App() {
 
   useEffect(() => {
     drawGraph(filteredHistory)
+
+    calculateBpm(filteredHistory)
   }, [filteredHistory])
 
   const sha256 = async (text: string) => {
@@ -125,6 +128,38 @@ data: number[], windowSize: number) => {
   }
 
   return result
+}
+
+const calculateBpm = (data: number[]) => {
+  if (data.length < 30) return
+
+  const max = Math.max(...data)
+  const min = Math.min(...data)
+
+  const threshold = min + (max - min) *0.6
+  const peaks: number[] = []
+
+  for (let i = 1; i < data.length - 1; i++) {
+    if (data[i] > threshold && data[i] > data[i - 1] && data[i] > data[i + 1]) {
+      peaks.push(i)
+    }
+  }
+
+  if (peaks.length < 2) return
+
+  const intervals: number[] = []
+
+  for (let i = 1; i < peaks.length; i++) {
+    intervals.push(peaks[i] - peaks[i - 1])
+  }
+
+  const avgInterval =
+    intervals.reduce((a,b) => a + b, 0) / intervals.length
+  
+  const secondsPerBeat = avgInterval * 0.2
+  const bpmValue = 60 / secondsPerBeat
+
+  setBpm(Math.round(bpmValue))
 }
 
 const drawGraph = (data: number[]) => {
@@ -284,6 +319,9 @@ const drawGraph = (data: number[]) => {
       </p>
       <p>
         データ数： {brightnessHistory.length}
+      </p>
+      <p>
+        BPM: {bpm}
       </p>
       <canvas
         ref={graphRef}
