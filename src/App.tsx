@@ -156,13 +156,13 @@ const calculateBpm = (data: number[]) => {
   }
 
  const latestInterval = intervals[intervals.length - 1]
-  setIbi(latestInterval * 200
+  setIbi(latestInterval * 100
   )
 
   const avgInterval =
     intervals.reduce((a,b) => a + b, 0) / intervals.length
   
-  const secondsPerBeat = avgInterval * 0.2
+  const secondsPerBeat = avgInterval * 0.1
   const bpmValue = 60 / secondsPerBeat
 
   setPeaks(detectedPeaks)
@@ -286,7 +286,7 @@ const drawGraph = (data: number[], peaks: number[]) => {
         brightnessValue,
       ])
 
-    }, 200)
+    }, 100)
   }
 
   if (!authenticated) {
