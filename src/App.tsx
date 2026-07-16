@@ -156,8 +156,17 @@ const calculateBpm = (data: number[]) => {
   }
 
  const latestInterval = intervals[intervals.length - 1]
-  setIbi(latestInterval * 100
-  )
+ const latestIbi =
+  latestInterval * 100
+
+ if ( 
+  latestIbi < 400 ||
+  latestIbi >2000
+ ){return}
+
+ setIbi(
+  Math.round(latestIbi)
+ )
 
   const avgInterval =
     intervals.reduce((a,b) => a + b, 0) / intervals.length
