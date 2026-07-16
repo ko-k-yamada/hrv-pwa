@@ -203,7 +203,7 @@ const calculateBpm = (data: number[]) => {
       Math.round(rmssdValue)
       )
       }
-    )
+    
 }
 
 const drawGraph = (data: number[], peaks: number[]) => {
