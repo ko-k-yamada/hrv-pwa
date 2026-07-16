@@ -12,6 +12,7 @@ function App() {
   const [bpm, setBpm] = useState(0)
   const [ibi, setIbi] = useState(0)
   const [ibiHistory, setIbiHistory] = useState<number[]>([])
+  const [rmssd, setRmssd] = useState(0)
   const [peaks, setPeaks] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
@@ -182,6 +183,27 @@ const calculateBpm = (data: number[]) => {
 
   setPeaks(detectedPeaks)
   setBpm(Math.round(bpmValue))
+
+  if (ibiHistory.length >= 2) {
+    const diffs: number[] = []
+
+    for (
+      let i = 1; i < ibiHistory.length; i++){
+        const diff = ibiHistory[i] - ibiHistory[i - 1]
+        diffs.push(diff * diff)
+    }
+
+    const mean =
+      diffs.reduce(
+      (a, b) => a + b, 0) / diffs.length
+    
+    const rmssdValue = Math.sqrt(mean)
+
+    setRmssd(
+      Math.round(rmssdValue)
+      )
+      }
+    )
 }
 
 const drawGraph = (data: number[], peaks: number[]) => {
@@ -368,6 +390,7 @@ const drawGraph = (data: number[], peaks: number[]) => {
       </p>
       <p>IBI: {ibi} ms</p>
       <p>IBI count: {ibiHistory.length}</p>
+      <p>RMSSD: {rmssd} ms</p>
       <canvas
         ref={graphRef}
         width={600}
