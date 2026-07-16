@@ -389,6 +389,9 @@ const drawGraph = (data: number[], peaks: number[]) => {
         BPM: {bpm}
       </p>
       <p>IBI: {ibi} ms</p>
+      <p>last 5 IBI:
+        {ibiHistory.slice(-5).join(', ')}
+      </p>
       <p>IBI count: {ibiHistory.length}</p>
       <p>RMSSD: {rmssd} ms</p>
       <canvas
