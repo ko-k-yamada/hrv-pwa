@@ -11,6 +11,7 @@ function App() {
   const [filteredHistory, setFilteredHistory] = useState<number[]>([])
   const [bpm, setBpm] = useState(0)
   const [ibi, setIbi] = useState(0)
+  const [ibiHistory, setIbiHistory] = useState<number[]>([])
   const [peaks, setPeaks] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
@@ -167,6 +168,11 @@ const calculateBpm = (data: number[]) => {
  setIbi(
   Math.round(latestIbi)
  )
+
+ setIbiHistory((prev) => [
+   ...prev.slice(-59),
+   Math.round(latestIbi)
+ ])
 
   const avgInterval =
     intervals.reduce((a,b) => a + b, 0) / intervals.length
@@ -361,6 +367,7 @@ const drawGraph = (data: number[], peaks: number[]) => {
         BPM: {bpm}
       </p>
       <p>IBI: {ibi} ms</p>
+      <p>IBI count: {ibiHistory.length}</p>
       <canvas
         ref={graphRef}
         width={600}
