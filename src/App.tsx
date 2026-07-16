@@ -13,6 +13,7 @@ function App() {
   const [ibi, setIbi] = useState(0)
   const [ibiHistory, setIbiHistory] = useState<number[]>([])
   const [rmssd, setRmssd] = useState(0)
+  const [lastSavedIbi, setLastSavedIbi] = useState(0)
   const [peaks, setPeaks] = useState<number[]>([])
 
   const [authenticated, setAuthenticated] = useState(false)
@@ -170,10 +171,16 @@ const calculateBpm = (data: number[]) => {
   Math.round(latestIbi)
  )
 
- setIbiHistory((prev) => [
-   ...prev.slice(-59),
-   Math.round(latestIbi)
- ])
+if (
+  Math.abs(latestIbi - lastSavedIbi) >= 100
+)
+{
+  setIbiHistory((prev) => [
+    ...prev.slice(-59),
+    Math.round(latestIbi),
+  ])
+  setLastSavedIbi(Math.round(latestIbi))
+}
 
   const avgInterval =
     intervals.reduce((a,b) => a + b, 0) / intervals.length
