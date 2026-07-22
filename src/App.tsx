@@ -138,8 +138,10 @@ data: number[], windowSize: number) => {
 const calculateBpm = (data: number[]) => {
   if (data.length < 30) return
 
-  const max = Math.max(...data)
-  const min = Math.min(...data)
+  const recentData = data.slice(-50)
+
+  const max = Math.max(...recentData)
+  const min = Math.min(...recentData)
 
   const threshold = min + (max - min) *0.7
   const detectedPeaks: number[] = []
