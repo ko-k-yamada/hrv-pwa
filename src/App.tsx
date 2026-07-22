@@ -175,11 +175,7 @@ const calculateBpm = (data: number[]) => {
       } else {
         detectedPeaks.push(peak)
       }
-    }
-          ]
-      }
-    )
-  }
+    }     
 
   if (detectedPeaks.length < 2) return
 
