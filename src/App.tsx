@@ -141,7 +141,7 @@ const calculateBpm = (data: number[]) => {
   const max = Math.max(...data)
   const min = Math.min(...data)
 
-  const threshold = min + (max - min) *0.6
+  const threshold = min + (max - min) *0.7
   const detectedPeaks: number[] = []
   const minPeakDistance = 5
   let lastPeakIndex = -999
