@@ -143,16 +143,42 @@ const calculateBpm = (data: number[]) => {
 
   const threshold = min + (max - min) *0.7
   const detectedPeaks: number[] = []
-  const minPeakDistance = 6
+  const candidatePeaks: number[] = []
+  const minPeakDistance = 5
   let lastPeakIndex = -999
 
   for (let i = 1; i < data.length - 1; i++) {
     if (data[i] > threshold && data[i] > data[i - 1] && data[i] > data[i + 1]) {
       if (i - lastPeakIndex >= minPeakDistance) {
-        detectedPeaks.push(i)
+        candidatePeaks.push(i)
         lastPeakIndex = i
       }
     }
+  }
+
+  for ( const peak of candidatePeaks){
+    if (
+      detectedPeaks.length === 0){
+        detectedPeaks.push(peak)
+        continue
+      }
+
+      const lastPeak =
+       detectedPeaks[detectedPeaks.length - 1]
+      
+      if (peak - lastPeak < 5){
+        if (data[peak] > data[lastPeak]){
+          detectedPeaks[
+            detectedPeaks.length - 1
+          ] = peak
+        }
+      } else {
+        detectedPeaks.push(peak)
+      }
+    }
+          ]
+      }
+    )
   }
 
   if (detectedPeaks.length < 2) return
